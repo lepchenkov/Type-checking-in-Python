@@ -228,4 +228,108 @@ This is different from using a Union of string and bytes because the
 typechecker will ensure that the type variable binds to the same type 
 throughout any call to the function. And mypy will raise a typecheck error 
 if we will try to concatenate a string and a bite.
+    
     concat('foo', b'bar')
+
+And this is really good.
+
+    concat(3,6) 
+    # this will also cause an error
+
+And what is really important:
+if we concatenate two strings:
+    reveal_type(concat('foo','bar')) 
+Type checker understads that the return value must be a string too.
+The same applies to bytes.
+
+Review:
+1. We can use unions and optional but sparringly 
+2. Overloads and generics allow us to teach the typechecker more about the
+invariance of our type signatures.
+Comparing to using unions and optionals, generics and oveloads can make 
+functions much more usable for callers without needing redundant checks.
+
+
+What about writing functions that can take an object and call its render 
+method:
+
+    def render(obj):
+        return obj.render()
+
+This is similar to a number of build-in protocols in python. For instance,
+the len protocol will call __len__ dunder method on any object.
+
+We can use Any type that is sort of an escape patch that typing system 
+provides. The any type is compatible with anythin. And it makes the type
+checking work but in the runtime we can pass in an object that does not 
+have a render method and get an error.
+
+    from typing_extensions import Protocol
+
+    class Renderable(Protocol):
+        def render(self) -> str: ...
+
+    # we define renderable as a subclass of Protocol and give it 
+    # a render method, we don't even need a body for this method.
+    # all we are giving here is an interface. 
+
+What matters is the attributes and their types and the methods and their 
+type signatures. Once we have this protocol defined, we can say that the 
+render method takes an object of the type Renderable and we have some 
+random class which has no explicit relationship to renderable simply 
+because it has a render method with the correct signature, the type 
+checker will except this call and allow us to pass a Foo object to a 
+render method because it seed that it matches the protocol.
+
+    from typing_extensions import Protocol
+
+    class Renderable(Protocol):
+        def render(self) -> str: ...
+
+    def render (obj: Renderable) -> str:
+        return obj.render()
+
+    class Foo:
+        def render(self) -> str:
+            return "Foo!"
+
+    render(Foo()) # clean!
+    render(3)     # error: expected Renderable 
+
+
+
+Sometimes we do really want to use the advantages of Python being 
+a dynamicall type lanuage. Or you may support a legacy code that was 
+written before typechecking has been invented. Type checkere provides 
+escape hatches for that.
+
+Escape Hatch #1: Any
+
+Escape Hatch #2: cast 
+
+Escape Hatch #3: ignore 
+
+Escape Hatch #4: stub (pyi) files
+In instagram there are a lot of high-performance C and cython code. And
+the typechecker can't see any of that code. But you can add a .pyi file 
+next to you C-extension file and handle the type checking there. 
+
+
+Gradual typing
+Analyzses annotated functions only.
+
+
+
+Monkeytype is a tool for adding annotations to a code.
+
+    $pip install monkeytype
+    $monkeytype run mytest.py
+    $monkeytype stub some.module
+    # and it will print out a stub file that is directly usable.
+
+    $monkeytype apply some.module
+
+Using monkeytype you can annotate large legacy condebases.
+
+There is also a type checker from facebook called Pyre - it is just 
+faster for large codebases.
