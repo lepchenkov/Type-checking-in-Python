@@ -4,11 +4,14 @@ https://www.youtube.com/watch?v=pMgmKJyWKn8
 
 Type-checked Python by @carljm
 
+
+
+
 Why type?
  
-def process(self, items):
-    for item in items:
-        self.append(item.value.id)
+    def process(self, items):
+        for item in items:
+            self.append(item.value.id)
 
 So this process method on some class takes an items agrument. 
 What is items? We have an idea of duck typing - we can give a duck
@@ -25,12 +28,12 @@ the collection that passed into process function.
 
 With the type annotation this goes away:
 
-from typing import Sequence
-from .models import Item
+    from typing import Sequence
+    from .models import Item
 
-def process(self, items: Sequence[Item]) -> None:
-    for item in items:
-        self.append(item.value.id)
+    def process(self, items: Sequence[Item]) -> None:
+        for item in items:
+            self.append(item.value.id)
 
 Now i know exactly what I expect to receive: a sequence of this particular 
 Item class, and I can go directly to it, I can see what attributes and 
@@ -46,3 +49,79 @@ wrong. In the space of all possible function arguments test coverage is
 very restricted. Parameterized tests can cover a whole range of inputs,
 or property-based tests cover even wider variety of possible. But with
 type annotations we can eliminate the entire areas of this input space.
+
+
+
+
+How to even type?
+
+    def square(x: int) -> int:
+        return x**2
+
+Than make pip install mypy and run mypy square.py. 
+Mypy is an open source type checking library that is created and 
+maintained by the team in dropbox. It is by far the most commonly used
+Python type checker. 
+
+By running mypy square.py we immediately get several errors even without 
+writing and running tests.
+
+So the type checker asks us to annotate our functions signatures in order
+to validate our assumptions about the input and output types. In between 
+there is a lot can infer. For instance:
+
+    from typing import Tuple
+
+    class Photo:
+        def __init__(self, width: int, height: int) -> None:
+            self.width = width
+            self. height = height
+
+In this class we have told that the argements of the initializer are 
+both integers, it can infer thorough the assignment to self and understand
+that every photo instance will have width and height attributes that are 
+both integers. 
+
+    class Photo:
+        def __init__(self, width: int, height: int) -> None:
+            self.width = width
+            self. height = height
+
+        def get_dimensions(self) -> Tuple[str, str]
+            return (self.width, self.height)
+
+And if we create a new method get_dimensions and claim that it returns
+a tuple of strings, our type checker will catch an error: incompatible 
+return value type (got "Tuple[int, int]", expected "Tuple[str, str]")
+
+We can also infer the type of containers:
+if we create a list of photos objects
+
+    photos = [Photo(640, 480), Photo(1024, 768),]
+
+and try to append a string to it:
+
+    photos.append('foo')
+
+The type checker will tell us hey, maybe that is not what you intended 
+to do: Argument 1 to "append" of "list" has incompatible type "str";
+expected "Photo"
+
+In Python it if perfectly fine to have a list with object of different 
+types but type checker assumes that if we initialized the list with 
+homogenous set of objects, that is probably what we intended. We can use
+explicit type annotations to give a broader type to the list.  
+
+In some cases type inference will not be enough to understand the type
+of every variable:
+
+    class Photo:
+        def __init__(self, width: int, height: int) -> None:
+            self.width = width
+            self.height = height
+            self.tags =[]
+
+If we create an empty containter, the type checker does not know what we 
+intend to put into it so it asks us to be explicit.
+
+            self.tags: List[str] = []
