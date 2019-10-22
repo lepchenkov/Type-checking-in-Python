@@ -124,4 +124,108 @@ of every variable:
 If we create an empty containter, the type checker does not know what we 
 intend to put into it so it asks us to be explicit.
 
-            self.tags: List[str] = []
+
+
+Review:
+1. Mostly you want to annotate your functions signatures (arguments and
+return values).
+2. Occasionally you might want to annotate a variable, but usually you 
+will do it if the type checker asks you to do it. Otherwise you may end
+up with redundant type annorations.
+
+
+
+
+Deeper!
+Sometimes we write functions that return more than one type. We can 
+handle it with a Union type:
+
+    from typing import Union
+
+    def get_foo_or_bar(id: int) -> Union [Foo, Bar]:
+    # the function can return either Foo or a Bar
+
+Very common case of this is function that can return smth. or None:
+    def get_foo_or_noe(id: int) -> Union[Foo, None]:
+
+It is so common thar there is a special function for that:
+    def get_foo_or_noe(id: int) -> Optional[Foo]:
+    ...
+
+So here we have a function get_foo that takes a Foo id which is an Optional
+integer and returns either a Foo or None:
+
+    from typing import Optional
+
+    def get_foo(foo_id: Optional[int]) -> Optional[Foo]:
+        if foo_id is None:
+            return None
+        return Foo(foo_id)
+        
+    my_foo = get_foo(3)
+    my_foo.id #error: NoneType has no attribute 'id'
+    
+The error happends because we specified that get_foo can return a None
+and we didn't check if it is actually a None. It could be an attribute 
+error at runtime. This illustrate why we might want to avoid Union 
+and Optional as a return types. Because every caller than should check 
+what is return to make safe use of the return value. 
+
+    
+There is a better option for this:
+Using the @overload decorator from the typing module we can give typecker
+more information about the invariance of our function, for instance, 
+overload allows for pattern matching similar to overloaded function in 
+other languages.
+
+    from typing import Optional, overload
+
+    @overload
+    def get_foo(foo_id: None) -> None:
+        pass
+ 
+In this case if foo_id is None the output of the function will always be
+None.
+
+    @overload
+    def get_foo(foo_id: int) -> Foo:
+        pass
+
+If Foo id is an integer, the return type will always be a Foo.
+
+And lastly we get the actual definition of get_foo:
+
+    def get_foo(foo_id: Optional[int]) -> Optional[Foo]:
+        if foo_id is None:
+            return None
+        return Foo(foo_id) 
+
+It is important to note that this type checking signatures do not 
+affect the runtime. And in runtime the only thing that gets used is 
+the final definition of the get_foo. That is why the other two definitions
+don't need the body, they can just use path. They are just additional 
+information for the type checker to better understad the type invariance
+that is implemented by the function. So with this definition if we 
+call a get_foo(None) the type checker will understand that the output
+value should be None too. And if we call get_foo(1) the typechecker will
+understand that the return value is Foo. 
+
+
+Another way to make the type checker smarter about the understanding
+our code is generic functions. 
+
+    from typing import TypeVar
+
+    AnyStr = TypeVar('AnyStr', str, bytes)
+
+Typevar is like a placeholder for either string or bytes. Type variables 
+can be unbounded, but in this case there is a bound of string and types. 
+
+    def concat(a: AnyStr, b: AnyStr) -> AnyStr
+        return a+b
+
+This is different from using a Union of string and bytes because the 
+typechecker will ensure that the type variable binds to the same type 
+throughout any call to the function. And mypy will raise a typecheck error 
+if we will try to concatenate a string and a bite.
+    concat('foo', b'bar')
