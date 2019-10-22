@@ -36,13 +36,13 @@ With the type annotation this goes away:
             self.append(item.value.id)
 
 Now i know exactly what I expect to receive: a sequence of this particular 
-Item class, and I can go directly to it, I can see what attributes and 
+Item class, and I can go directly to it, I can see whatever attributes and 
 methods it has. And this is not really new: people where putting this 
 information into docstrings for years now. But in real life people forget
 to edit and update type annotations, so they become obsolete. With type 
 annotations they may be automatically checked for correctness. 
 
-That's cool, gut I don't need it; I would catch it with a test!
+That's cool, but I don't need it; I would catch it with a test!
 Static programmers can say that they even don't need to write tests 
 because the compiler catches all their bugs. Both are right and both are 
 wrong. In the space of all possible function arguments test coverage is 
