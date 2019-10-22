@@ -1,0 +1,48 @@
+Lecture:
+
+https://www.youtube.com/watch?v=pMgmKJyWKn8
+
+Type-checked Python by @carljm
+
+Why type?
+ 
+def process(self, items):
+    for item in items:
+        self.append(item.value.id)
+
+So this process method on some class takes an items agrument. 
+What is items? We have an idea of duck typing - we can give a duck
+typing answer to what is items. Item is some collection that we can
+iterate over and each item in the collections should have a value 
+attribute which itself should have an id attribute. 
+
+The problem with this is that code is written once but maintained 
+for a long time. And if you come half a year later and forget everything
+you need to reestablish this contract by reading the code line by line.
+And it is entirely implicit. Sometimes defining the type requires digging
+through layers and layers of code until you track down to the origin of 
+the collection that passed into process function.   
+
+With the type annotation this goes away:
+
+from typing import Sequence
+from .models import Item
+
+def process(self, items: Sequence[Item]) -> None:
+    for item in items:
+        self.append(item.value.id)
+
+Now i know exactly what I expect to receive: a sequence of this particular 
+Item class, and I can go directly to it, I can see what attributes and 
+methods it has. And this is not really new: people where putting this 
+information into docstrings for years now. But in real life people forget
+to edit and update type annotations, so they become obsolete. With type 
+annotations they may be automatically checked for correctness. 
+
+That's cool, gut I don't need it; I would catch it with a test!
+Static programmers can say that they even don't need to write tests 
+because the compiler catches all their bugs. Both are right and both are 
+wrong. In the space of all possible function arguments test coverage is 
+very restricted. Parameterized tests can cover a whole range of inputs,
+or property-based tests cover even wider variety of possible. But with
+type annotations we can eliminate the entire areas of this input space.
