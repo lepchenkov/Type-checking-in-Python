@@ -146,10 +146,10 @@ handle it with a Union type:
     # the function can return either Foo or a Bar
 
 Very common case of this is function that can return smth. or None:
-    def get_foo_or_noe(id: int) -> Union[Foo, None]:
+    def get_foo_or_none(id: int) -> Union[Foo, None]:
 
 It is so common thar there is a special function for that:
-    def get_foo_or_noe(id: int) -> Optional[Foo]:
+    def get_foo_or_none(id: int) -> Optional[Foo]:
     ...
 
 So here we have a function get_foo that takes a Foo id which is an Optional
@@ -243,7 +243,7 @@ Type checker understads that the return value must be a string too.
 The same applies to bytes.
 
 Review:
-1. We can use unions and optional but sparringly 
+1. We can use unions and optionals but sparringly 
 2. Overloads and generics allow us to teach the typechecker more about the
 invariance of our type signatures.
 Comparing to using unions and optionals, generics and oveloads can make 
@@ -269,7 +269,7 @@ have a render method and get an error.
     class Renderable(Protocol):
         def render(self) -> str: ...
 
-    # we define renderable as a subclass of Protocol and give it 
+    # we define Renderable as a subclass of Protocol and give it 
     # a render method, we don't even need a body for this method.
     # all we are giving here is an interface. 
 
@@ -286,7 +286,7 @@ render method because it seed that it matches the protocol.
     class Renderable(Protocol):
         def render(self) -> str: ...
 
-    def render (obj: Renderable) -> str:
+    def render(obj: Renderable) -> str:
         return obj.render()
 
     class Foo:
