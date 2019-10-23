@@ -84,7 +84,7 @@ both integers.
 
     class Photo:
         def __init__(self, width: int, height: int) -> None:
-            self.width = width
+            self.width = width  
             self. height = height
 
         def get_dimensions(self) -> Tuple[str, str]
