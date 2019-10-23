@@ -316,7 +316,7 @@ next to you C-extension file and handle the type checking there.
 
 
 Gradual typing
-Analyzses annotated functions only.
+Analyzes annotated functions only.
 
 
 
