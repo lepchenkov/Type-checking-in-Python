@@ -7,7 +7,7 @@ def square(x: int) -> int:
 square(3)
 
 # this will raise an error when running mypy square.py
-square(5)
+square('some string')
 # error: Argument 1 to "square" has incompatible type "str"; expected "int"
 
 
