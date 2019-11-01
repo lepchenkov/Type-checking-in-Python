@@ -75,10 +75,10 @@ there is a lot can infer. For instance:
     class Photo:
         def __init__(self, width: int, height: int) -> None:
             self.width = width
-            self. height = height
+            self.height = height
 
 In this class we have told that the argements of the initializer are 
-both integers, it can infer thorough the assignment to self and understand
+both integers, it can infer through the assignment to self and understand
 that every photo instance will have width and height attributes that are 
 both integers. 
 
@@ -105,9 +105,9 @@ and try to append a string to it:
 
 The type checker will tell us hey, maybe that is not what you intended 
 to do: Argument 1 to "append" of "list" has incompatible type "str";
-expected "Photo"
+expected "Photo".
 
-In Python it if perfectly fine to have a list with object of different 
+In Python it if perfectly fine to have a list with objects of different 
 types but type checker assumes that if we initialized the list with 
 homogenous set of objects, that is probably what we intended. We can use
 explicit type annotations to give a broader type to the list.  
@@ -167,7 +167,7 @@ integer and returns either a Foo or None:
     
 The error happends because we specified that get_foo can return a None
 and we didn't check if it is actually a None. It could be an attribute 
-error at runtime. This illustrate why we might want to avoid Union 
+error at runtime. This illustrates why we might want to avoid Union 
 and Optional as a return types. Because every caller than should check 
 what is return to make safe use of the return value. 
 
